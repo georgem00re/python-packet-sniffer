@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 from scapy.all import sniff, get_if_list
 import click
