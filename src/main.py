@@ -1,18 +1,23 @@
 
 from scapy.all import sniff, get_if_list
+import click
 import sys
 
-INTERFACE = "en0"
+@click.command()
+@click.option("--iface", prompt=True, help="The network interface to sniff on (e.g., eth0, tun0, utun3)")
+def main(iface):
+    # Get a list of all available network interfaces.
+    interfaces = get_if_list()
 
-def log_packet(packet):
-    print(packet.summary())
+    # Throw an exception if the provided interface is invalid.
+    if iface not in interfaces:
+        raise click.ClickException(f"Interface '{iface}' not found.\nAvailable interfaces: {', '.join(interfaces)}")
 
-def get_all_network_interfaces():
-    get_if_list()
+    click.echo(f"[*] Sniffing on {iface}. Press Ctrl+C to stop.")
 
-def main():
-    if INTERFACE not in get_if_list(): sys.exit(1)
-    sniff(iface=INTERFACE, prn=log_packet, store=False)
+    # Starts packet capture on the specific network interface.
+    # Each captured packet will be logged to the console. Packets will not be stored in memory.
+    sniff(iface=iface, prn=lambda packet: print(packet.summary()), store=False)
 
 if __name__ == "__main__":
     main()
